@@ -1,0 +1,83 @@
+# 4.1 Docker 이미지 조작
+
+* 이미지 다운로드
+
+- docker image pull [option] 이미지명[:태그명]
+cf) docker 이미지 명에 이미지를 취득할 URL 지정 가능.
+ex) docker image pull centos:7
+    docker image pull -a centos
+    docker image pull gcr.io.tensorflow/tensorflow
+
+* 이미지 목록 표시
+
+- doker image ls [option] [repository name]
+
+- option:
+  -all, -a : 모든 이미지 표시
+  --digests : 다이제스트(이미지를 고유하게 식별하기 위한 것)를 표시할지 말지
+  --no-trunc : 결과를 모두 표시
+  --quiet, -q : Docker 이미지만 표시
+
+- result:
+  repository : 이미지 이름
+  TAG : 이미지 태그명
+  IMAGE ID : 이미지 ID
+  CREATED : 작성일
+  SIZE : 이미지 크기
+
+* Docker content trust(DCT)
+
+- DCT 기능 유효화: $ export DOCKER_CONTENT_TRUST=1
+- DCT 기능 무효화: $ export DOCKER_CONTENT_TRUST=0
+
+* 이미지 상세 정보 확인
+
+- docker image inspect 이미지명[:태그명]
+- 명령을 실행하면 이미지의 상세 정보가 JSON 형식으로 표시됨. 따라서, 특정 값을 취득하고 싶을 때는 --format 옵션을 사용,
+JSON 형식 데이터의 계층구조를 지정.
+  ex) docker image inspect --format="{{ .Os}}" centos:7
+      docker image inspect --format="{{ .ContainerConfig.Image}}" cnetos:7
+
+* 이미지 태그 설정
+
+- docker image tag <Docker Hub 사용자명>/이미지명:[태그명]
+- 태그를 붙인 이미지와 원래 이미지의 image id가 같음 -> 이미지에 nickname을 준 것일 뿐, 이미지 자체를 복사하거나
+이름을 바꾼 것은 아님.
+
+* 이미지 검색
+
+- docker search [option] <검색키워드>
+- option:
+  --no-turnc : 검색 결과 모두 표시
+  --limit : n건의 검색 결과를 표시
+  --filter=stars=n : 즐겨찾기의 수(n 이상)를 지정
+- 공식 docker image 는 [OFFICIAL]이 [OK]로 표시됨.
+- [AUTOMATED] : Dockerfile을 바탕으로 자동 생성된 이미지인지 아닌지
+
+* 이미지 삭제
+
+- docker image rm [option] 이미지명 [이미지명]
+- option:
+  --force, -f : 이미지를 강제로 삭제
+  --no-prune : 중간 이미지를 삭제하지 않음
+- 이미지명은 [REPOSITORY] 또는 [IMAGE ID]를 지정.
+- 사용하지 않은 Docker image 삭제: docker image prune
+
+* Docker Hub에 로그인/로그아웃
+
+- docker login [option] [server] / docker logout [서버명]
+- option:
+  --password, -p : 비밀번호
+  --username, -u : 사용자명
+
+* 이미지 업로드
+
+- docker image push 이미지명[:태그명]
+- 업로드할 이미지 형식: <Docker Hub 사용자명>/이미지명[:태그명]
+
+# 4.2 Docker 컨테이너 생성/시작/정지
+
+
+
+
+
