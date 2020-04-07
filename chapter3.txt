@@ -1,0 +1,34 @@
+# 3.1 Docker 설치와 작동 확인
+
+* Docker 에서 'Hello World'
+- docker container run <Docker 이미지명> <실행할 명령>
+
+* Version check
+- docker version
+
+* Running environment check
+- docker system info
+
+* Docker 디스크 이용 상황
+- docker system df
+
+* image download
+- docker pull <image name>
+
+* image check
+- docker image ls (or docker images)
+
+* run Nginx
+- docker container run --name webserver -d -p 80:80 nginx
+
+docker container run --name webserver -d -p 80:80 nginx
+e486e8a52ae6c10e6f8b88dac9a0ba6ccfbfc73c2c62ec091111f6d0c47eebd4 -> 컨테이너 ID
+
+- server 상태 확인: docker container ps
+
+- 상세내용 확인: docker container stats
+
+- 기동 및 정지: docker start(stop) webserver
+
+
+
