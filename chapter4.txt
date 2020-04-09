@@ -36,7 +36,7 @@ ex) docker image pull centos:7
 - 명령을 실행하면 이미지의 상세 정보가 JSON 형식으로 표시됨. 따라서, 특정 값을 취득하고 싶을 때는 --format 옵션을 사용,
 JSON 형식 데이터의 계층구조를 지정.
   ex) docker image inspect --format="{{ .Os}}" centos:7
-      docker image inspect --format="{{ .ContainerConfig.Image}}" cnetos:7
+      docker image inspect --format="{{ .ContainerConfig.Image}}" centos:7
 
 * 이미지 태그 설정
 
@@ -87,6 +87,11 @@ JSON 형식 데이터의 계층구조를 지정.
  + 컨테이너를 작성하기만 할 뿐, 컨테이너를 시작하지는 않음.
 
 - docker container run [option] 이미지명[:태그명] [인수]
+ + 컨테이너 생성 및 시작
+ + 이미지로부터 컨테이너 생성, 컨테이너 상에서 임의 프로세스 시작
+ + 리눅스의 프로세스 관리와 마찬가지로 Nginx 등의 서버 프로세스를 백그라운드에서 항시 실행하거나, 강제종료 가능
+ + 포트 번호와 같은 네트워크를 설정함으로써 외부에서 컨테이너 프로세스에 액세스할 수 있음.
+
  + option
    --attach, -a : 표준 입력(STDIN), 표준 출력(STDOUT), 표준 오류 출력(STDERR)에 attach
    --cidfile : 컨테이너 ID를 파일로 출력
@@ -104,27 +109,105 @@ JSON 형식 데이터의 계층구조를 지정.
      always : 항상 재시작한다.
      unless-stopped : 최근 컨테이너가 정지 상태가 아니라면 항상 재시작한다.
    --rm : 명령 실행 완료 후에 컨테이너 자동으로 삭제
-   
- + 컨테이너 생성 및 시작
- + 이미지로부터 컨테이너 생성, 컨테이너 상에서 임의 프로세스 시작
- + 리눅스의 프로세스 관리와 마찬가지로 Nginx 등의 서버 프로세스를 백그라운드에서 항시 실행하거나, 강제종료 가능
- + 포트 번호와 같은 네트워크를 설정함으로써 외부에서 컨테이너 프로세스에 액세스할 수 있음.
+ 
+ + 네트워크 설정: docker container run [네트워크 옵션] 이미지명[:태그명] [인수]
+   --add-host=[호스트명:IP주소]
+   --dns=[IP주소]
+   --expose : 지정한 범위의 포트 번호를 할당
+   --mac-address=[MAC주소] : 컨테이너의 MAC주소를 지정
+   --net=[bridge | none | container:<name | id> | host | NETWORK]
+     bridge : 브리지 연결(기본값) 사용
+     none : 네트워크에 연결하지 않음
+     container:[name | id] : 다른 컨테이너의 네트워크 사용
+     host: 컨테이너가 호스트 os의 네트워크 사용
+     NETWORK : 사용자 정의 네트워크 사용
+     ex) docker container create -d bridge webap-net
+         docker container run -net=webap-net -it centos
+   --hostname, -h
+   --publish, -p[호스트의 포트 번호]:[컨테이너의 포트 번호]
+   --publish-all, -p : 호스트의 임의의 포트를 컨테이너에 할당
+   ex) docker container run -d -p 8080:80 nginx
+       docker container run -d --dns 192.168.1.1 nginx
+       docker container run -d --mac-address="92:d0:c6:0a:29:33" centos
+       docker container run -it --hostname www.test.com --add-host node1.test.com:192.168.1.1 centos
+ 
+ + 자원을 지정하여 컨테이너 생성 및 실행: docker container run [자원 옵션] 이미지명[:태그명] [인수]
+   --cpu-shares, -c : CPU의 사용 배분(비율)
+   --memory, -m : 사용할 메모리를 제한하여 실행(단위는 b, k, m, g 중 하나)
+   --volume=[호스트의 디렉토리]:[컨테이너의 디렉토리], -v : 호스트와 컨테이너의 디렉토리 공유
+   ex) docker container run --cpu-shares=512 --memory=1g centos
+       docker container run -v /Users/asa/webap:/usr/share/nginx/html nginx
 
-- docker container start
+ + 컨테이너 생성 및 시작하는 환경 지정: docker container run [환경설정 옵션] 이미지명[:태그명] [인수]
+   --env=[환경변수], -e
+   --env-file=[파일명] : 환경변수를 파일로부터 설정
+   --read-only=[true | false]
+   --workdir=[패스], -w : 컨테이너의 작업 디렉토리를 지정
+   -u, --user=[사용자명]
+   ex) docker container run -it -e foo=bar centos bin/bash
+       docker container run -it --env-file=env_list centos /bin/bash
+       docker container run -it -w=/tensorflow centos /bin/bash
+
+ + 가동 컨테이너 목록 표시: docker container ls
+   --all, -a
+   --filter, -f : 표시할 컨테이너 필터링
+   --format : 표시 포맷을 지정
+     .ID : 컨테이너ID
+     .Image : 이미지ID
+     .Command : 실행 명령
+     .CreatedAt : 컨테이너 작성 시간
+     .RunningFor : 컨테이너 가동 시간
+     .Ports : 공개 포트
+     .Status : 컨테이너 상태
+     .Size : 컨테이너 디스크 크기
+     .Names : 컨테이너명
+     .Mounts : 볼륨 마운트
+     .Networks : 네트워크명
+
+   --last, -n : 마지막으로 실행된 n건의 컨테이너만 표시
+   --latest, -l : 마지막으로 실행된 컨테이너만 표시
+   --no-trunc : 정보를 생략하지 않고 표시
+   --quiet, -q : 컨테이너ID만 표시
+   --size, -s : 파일 크기 표시
+   ex) docker container ls -a -f name=test1
+       docker container ls -a -f exited=0
+       docker container ls -a --format "{{.Names}}: {{.Status}}"
+       docker container ls -a --format "table {{.Names}}\t{{.Status}}\t {{.Mounts}}"
+
+ + 컨테이너 가동 확인: docker container stats[컨테이너 식별자]
+   ctrl + c 로 명령 종료
+
+- docker container start [option] <컨테이너 식별자> [컨테이너 식별자]
  + 정지 중인 컨테이너 시작
  + 컨테이너에 할당된 컨테이너 식별자를 지정하여 컨테이너 시작
-
-- docker container stop
+ + options
+   --attach, -a : 표준 출력, 표준 오류 출력 열기
+   --interactive, -l : 컨테이너 표준 입력 열기
+   
+- docker container stop [option] <컨테이너 식별자> [컨테이너 식별자]
  + 실행 중인 컨테이너 정지
  + 컨테이너에 할당된 컨테이너 식별자를 지정하여 컨테이너 정지
  + 컨테이너 삭제 시 stop 명령을 사용해 실행 중인 컨테이너 정지
- + 컨테이너 재시작 -> docker container restart
+ + options
+   --time, -t : 컨테이너 정지 시간을 지정(기본값 10초)
 
-- docker container rm
+- docker container restart [option] <컨테이너 식별자> [컨테이너 식별자]
+ + 컨테이너 재시작
+ + options
+   --time, -t : 컨테이너 재시작 시간 지정(기본값 10초)
+
+- docker container rm [option] <컨테이너 식별자> [컨테이너 식별자]
  + 컨테이너 삭제
+ + options
+   --force, -f : 실행 중인 컨테이너 강제로 삭제
+   --volumes, -v : 할당한 볼륨 삭제
 
 - docker container ps
  + 컨테이너 상태 확인
 
-- docker container pause
+- docker container pause <컨테이너 식별자>
  + 컨테이너 일시 정지
+
+ # 4.3 Docker 컨테이너 네트워크
+
+ - 네트워크 목록 표시: docker network ls [option]
