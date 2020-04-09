@@ -211,3 +211,15 @@ JSON 형식 데이터의 계층구조를 지정.
  # 4.3 Docker 컨테이너 네트워크
 
  - 네트워크 목록 표시: docker network ls [option]
+  + options
+    -f, --filter=[] : 출력을 필터링함
+      driver : 드라이버 지정
+      id : 네트워크 ID
+      label : 네트워크에 설정된 라벨(label=<key> 또는 label=<key>=<value>로 지정)
+      name : 네트워크명
+      scope : 네트워크 스코프(swarm/global/local)
+      type : 네트워크 타입(사용자 정의 네트워크 custom/정의 완료 네트워크 builtin)
+      ex) docker network ls -q --filter driver=bridge
+    --no-trunc : 상세 정보 출력
+    -q, --quiet : 네트워크 ID만 표시
+
