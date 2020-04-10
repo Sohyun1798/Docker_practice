@@ -210,6 +210,7 @@ JSON 형식 데이터의 계층구조를 지정.
 
  # 4.3 Docker 컨테이너 네트워크
 
+ - 네트워크를 명시적으로 지정하지 않고 Docker 컨테이너 시작: 기본값인 
  - 네트워크 목록 표시: docker network ls [option]
   + options
     -f, --filter=[] : 출력을 필터링함
@@ -222,4 +223,14 @@ JSON 형식 데이터의 계층구조를 지정.
       ex) docker network ls -q --filter driver=bridge
     --no-trunc : 상세 정보 출력
     -q, --quiet : 네트워크 ID만 표시
+
+ - 네트워크 작성: docker network create [옵션] 네트워크
+  + options
+    --driver, -d : bridge 또는 overlay(기본값은 bridge, 커스텀 네트워크 드라이버도 사용 가능)
+                   overlay 네트워크는 여러개의 호스트에 걸쳐 있는 네트워크를 말함.
+    --ip-range : 컨테이너에 할당하는 IP 주소 범위를 지정
+    --subnet : 서브넷을 CIDR 형식으로 지정
+    --ipv6 : IPv6 네트워크를 유효화할지 말지(true/false)
+    -label : 네트워크에 설정하는 라벨
+    
 
