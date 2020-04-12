@@ -174,7 +174,7 @@ JSON 형식 데이터의 계층구조를 지정.
        docker container ls -a --format "{{.Names}}: {{.Status}}"
        docker container ls -a --format "table {{.Names}}\t{{.Status}}\t {{.Mounts}}"
 
- + 컨테이너 가동 확인: docker container stats[컨테이너 식별자]
+ + 컨테이너 가동 확인: docker container stats [컨테이너 식별자]
    ctrl + c 로 명령 종료
 
 - docker container start [option] <컨테이너 식별자> [컨테이너 식별자]
@@ -233,5 +233,83 @@ JSON 형식 데이터의 계층구조를 지정.
     --subnet : 서브넷을 CIDR 형식으로 지정
     --ipv6 : IPv6 네트워크를 유효화할지 말지(true/false)
     -label : 네트워크에 설정하는 라벨
+    ex) docker network create --driver=bridge web-network
 
+- 네트워크 연결: docker network connect/disconnect [option] 네트워크 컨테이너
+ + options
+   --ip : IPv4 주소
+   --ip6 : IPv6 주소
+   --alias : 앨리어스명
+   --link : 다른 컨테이너에 대한 링크
+   ex) docker network connect/disconnect web-network webfront
 
+ + 네트워크에 대한 연결은 컨테이너 시작 시에 할 수도 있음.
+   ex) docker container run -itd --name=webap --net=web-network nginx
+
+- 네트워크 상세 정보 확인: docker network inspect [option] 네트워크
+
+- 네트워크 삭제: docker network rm [option] 네트워크
+  ex) docker network rm web-network
+
+# 4.4 가동 중인 Docker 컨테이너 조작
+
+- 가동 컨테이너 연결: docker container attach
+ + 연결한 컨테이너를 종료하려면 ctrl+C
+ + 컨테이너를 시작한 채로 컨테이너 안에서 움직이는 프로세스만 종료하려면 ctrl+P, ctrl+Q
+
+- 가동 컨테이너에서 프로세스 실행: docker container exec [option] <컨테이너 식별자> <실행할 명령> [인수]
+ + options
+   --detach, -d : 명령을 백그라운드에서 실행한다.
+   --interactive, -i : 컨테이너의 표준 입력을 연다.
+   --tty, -t : tty(단말 디바이스)를 사용한다.
+   --user, -u : 사용자명을 지정한다.
+ ex) docker container exec -it webserver /bin/bash
+     docker container exec -it webserver /bin/echo "Hello world"
+
+- 가동 컨테이너의 프로세스 확인: docker container top [컨테이너명]
+
+- 가동 컨테이너의 포트 전송 확인: docker container port [컨테이너명]
+
+- 컨테이너 이름 변경: docker container rename [old] [new]
+
+- 컨테이너 안의 파일 복사: docker container cp
+ + 컨테이너에서 호스트로: docker container cp <컨테이너 식별자>:<컨테이너 안의 파일 경로> <호스트의 디렉토리 경로>
+ + 호스트에서 컨테이너로: docker container cp <호스트의 파일> <컨테이너 식별자>:<컨테이너 안의 파일 경로>
+
+- 컨테이너 조작의 차분 확인: docker container diff <컨테이너 식별자>
+ + A: 파일 추가
+ + D: 파일 삭제
+ + C: 파일 수정
+
+# 4.5 Docker 이미지 생성
+
+- 컨테이너로부터 이미지 작성: docker container commit [옵션] <컨테이너 식별자> [이미지명[:태그명]]
+ + options
+   --author, -a: 작성자 지정
+   --message, -m: 메시지 지정
+   --change, -c: 커미트 시 Dockerfile 명령을 지정
+   --pause, -p: 컨테이너를 일시 정지하고 커미트
+ ex) docker container commit -a "Sohyun" webserver sohyun/webfront:1.0
+
+- 컨테이너를 tar 파일로 출력: docker container export <컨테이너 식별자>
+ ex) docker container export webserver > latest.tar
+
+- tar 파일로부터 이미지 작성: docker image import <파일 또는 URL> | - [이미지명[:태그명]]
+ + docker image import 명령에서 지정할 수 있는 파일은 하나 뿐! -> tar 명령으로 파일 모아둘 것
+ + root 권한으로 실행하지 않을 시 액세스 권한이 없는 파일은 포함되지 않는 경우 발생
+ ex) cat latest.tar | docker image import - sohyun/webfront:1.1
+
+- 이미지 저장: docker image save [option] <저장 파일명> [이미지명]
+ + Docker 이미지를 tar 파일로 저장.
+ + 저장할 파일명: -o 로 지정
+ ex) docker image save -o export.tar tensorflow
+
+- 이미지 읽어들이기: docker image load [option]
+ + tar 이미지로부터 이미지 읽어들이기
+ + 읽어 들일 파일명: -i 로 지정
+ ex) docker image load -i export.tar
+
+- 불필요한 이미지/컨테이너 일괄 삭제: docker system prune [option]
+ + options
+   --all, -a: 사용하지 않는 리소스 모두 삭제
+   --force, -f: 강제적으로 삭제
